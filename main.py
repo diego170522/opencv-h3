@@ -381,18 +381,30 @@ def reconocimiento_facial():
 
 
 def mostrar_menu():
-    imprimir_mensaje_coloreado("Menú de opciones:", Colores.ROJO)
-    imprimir_mensaje_coloreado("1. Copiar Imágenes", Colores.ROJO)
-    imprimir_mensaje_coloreado("2. Mostrar características de una imagen", Colores.ROJO)
+    imprimir_mensaje_coloreado(r"██████╗ ██╗███████╗ ██████╗  ██████╗ ", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██╔══██╗██║██╔════╝██╔════╝ ██╔═══██╗", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██║  ██║██║█████╗  ██║  ███╗██║   ██║", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██║  ██║██║██╔══╝  ██║   ██║██║   ██║", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██████╔╝██║███████╗╚██████╔╝╚██████╔╝", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"╚═════╝ ╚═╝╚══════╝ ╚═════╝  ╚═════╝ ", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"███╗   ███╗███████╗███╗   ██╗██████╗  ██████╗ ███████╗ █████╗ ", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"████╗ ████║██╔════╝████╗  ██║██╔══██╗██╔═══██╗╚══███╔╝██╔══██╗", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██╔████╔██║█████╗  ██╔██╗ ██║██║  ██║██║   ██║  ███╔╝ ███████║", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║  ██║██║   ██║ ███╔╝  ██╔══██║", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"██║ ╚═╝ ██║███████╗██║ ╚████║██████╔╝╚██████╔╝███████╗██║  ██║", Colores.VERDE)
+    imprimir_mensaje_coloreado(r"╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝", Colores.VERDE)
+    imprimir_mensaje_coloreado("Menú de opciones:", Colores.VERDE)
+    imprimir_mensaje_coloreado("1. Copiar Imágenes", Colores.VERDE)
+    imprimir_mensaje_coloreado("2. Mostrar características de una imagen", Colores.VERDE)
     imprimir_mensaje_coloreado(
-        "3. Sobrescribir los pixeles de la imagen con color negro", Colores.ROJO
+        "3. Sobrescribir los pixeles de la imagen con color negro", Colores.VERDE
     )
-    imprimir_mensaje_coloreado("4. Invertir una imagen", Colores.ROJO)
-    imprimir_mensaje_coloreado("5. Ampliar o reducir una imagen", Colores.ROJO)
-    imprimir_mensaje_coloreado("6. Recortar una imagen", Colores.ROJO)
-    imprimir_mensaje_coloreado("7. Escribir texto en la imagen", Colores.ROJO)
-    imprimir_mensaje_coloreado("8. Reconocimiento facial", Colores.ROJO)
-    imprimir_mensaje_coloreado("0. Salir", Colores.ROJO)
+    imprimir_mensaje_coloreado("4. Invertir una imagen", Colores.VERDE)
+    imprimir_mensaje_coloreado("5. Ampliar o reducir una imagen", Colores.VERDE)
+    imprimir_mensaje_coloreado("6. Recortar una imagen", Colores.VERDE)
+    imprimir_mensaje_coloreado("7. Escribir texto en la imagen", Colores.VERDE)
+    imprimir_mensaje_coloreado("8. Reconocimiento facial", Colores.VERDE)
+    imprimir_mensaje_coloreado("0. Salir", Colores.VERDE)
 
 
 def main():
