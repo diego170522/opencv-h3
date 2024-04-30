@@ -46,6 +46,21 @@ def copiarImagenes():
         )
 
         copiar_archivo(ruta_origen, ruta_destino)
+        # Leer la imagen con OpenCV
+        imagen = cv2.imread(ruta_origen)
+
+        # Verificar si la imagen se cargó correctamente
+        if imagen is None:
+            print("Error: No se pudo cargar la imagen.")
+            return
+
+        # Obtener el ancho, altura y cantidad de canales de colores de la imagen
+        altura, ancho, canales = imagen.shape
+
+        # Mostrar la información
+        print("Ancho de la imagen:", ancho)
+        print("Altura de la imagen:", altura)
+        print("Canales de colores de la imagen:", canales)
 
     if __name__ == "__main__":
         main()
@@ -89,6 +104,13 @@ def invertir_imagen():
         print("Error: No se pudo cargar la imagen.")
         return
 
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
     # Solicitar al usuario que elija la dirección de inversión
     direccion = input(
         "¿Desea invertir la imagen horizontalmente o verticalmente? (h/v): "
@@ -131,6 +153,13 @@ def sobrescribir_pixeles():
         print("Error: No se pudo cargar la imagen.")
         return
 
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
     # Obtener las dimensiones de la imagen
     altura, ancho, _ = imagen.shape
 
@@ -154,9 +183,20 @@ def sobrescribir_pixeles():
         print("Error: Las coordenadas están fuera de los límites de la imagen.")
         return
 
-    # Pintar de negro el área definida por las coordenadas
+    # Solicitar al usuario que ingrese el color del rectángulo en formato RGB
+    print("Color de la figura:")
+    color_r = int(input("Ingrese el valor de R (0-255): "))
+    color_g = int(input("Ingrese el valor de G (0-255): "))
+    color_b = int(input("Ingrese el valor de B (0-255): "))
+
+    # Pintar el área definida por las coordenadas con el color especificado
+    color_rectangulo = (color_b, color_g, color_r)  # OpenCV utiliza BGR en lugar de RGB
     imagen_pintada = imagen.copy()
-    cv2.rectangle(imagen_pintada, (x1, y1), (x2, y2), (0, 0, 0), thickness=cv2.FILLED)
+    cv2.rectangle(
+        imagen_pintada, (x1, y1), (x2, y2), color_rectangulo, thickness=cv2.FILLED
+    )
+
+    # Mostrar la imagen resultante
 
     # Crear una ventana con el nombre "Imagen Invertida" y maximizarla
     cv2.namedWindow("Imagen Invertida", cv2.WINDOW_NORMAL)
@@ -182,24 +222,42 @@ def ampliar_imagen():
         print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
         return
 
-    # Pedir al usuario el factor de ampliación
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
+    # Pedir al usuario el factor de modificación
     try:
-        factor_ampliacion = float(
-            input(
-                "Ingrese el factor de ampliación (por ejemplo, 1.5 para ampliar al 150%): "
-            )
+        factor_modificacion = float(
+            input("Ingrese el factor de modificación (-10 a 10): ")
         )
     except ValueError:
-        print("Por favor, ingrese un número válido para el factor de ampliación.")
+        print("Por favor, ingrese un número válido para el factor de modificación.")
         return
 
-    # Ampliar la imagen
-    imagen_ampliada = cv2.resize(
+    # Verificar si el factor de modificación está dentro del rango permitido
+    if factor_modificacion < -10 or factor_modificacion > 10:
+        print("El factor de modificación debe estar en el rango de -10 a 10.")
+        return
+
+    # Calcular el factor de ampliación o reducción según el valor proporcionado
+    if factor_modificacion >= 0:
+        factor_ampliacion = factor_modificacion + 1
+    else:
+        factor_ampliacion = 1 / abs(
+            factor_modificacion
+        )  # Invierte y toma el valor absoluto
+
+    # Modificar la imagen según el factor de ampliación o reducción
+    imagen_modificada = cv2.resize(
         imagen, None, fx=factor_ampliacion, fy=factor_ampliacion
     )
 
-    # Mostrar la imagen en una ventana
-    cv2.imshow("Imagen Ampliada", imagen_ampliada)
+    # Mostrar la imagen modificada en una ventana
+    cv2.imshow("Imagen Modificada", imagen_modificada)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -248,27 +306,218 @@ def insertar_texto_en_imagen():
         print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
         return
 
+    # Obtener el ancho, altura y cantidad de canales de colores de la imagen
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
     # Pedir al usuario el texto a insertar
     texto = input("Ingrese el texto a insertar: ")
+
+    # Pedir al usuario las coordenadas donde ubicar el texto
+    try:
+        x = int(input("Ingrese la coordenada x para la ubicación del texto: "))
+        y = int(input("Ingrese la coordenada y para la ubicación del texto: "))
+    except ValueError:
+        print("Por favor, ingrese valores válidos para las coordenadas.")
+        return
+
+    # Pedir al usuario el color del texto en formato RGB
+    try:
+        color_r = int(input("Ingrese el valor de R (0-255): "))
+        color_g = int(input("Ingrese el valor de G (0-255): "))
+        color_b = int(input("Ingrese el valor de B (0-255): "))
+    except ValueError:
+        print("Por favor, ingrese valores válidos para los componentes RGB.")
+        return
 
     # Definir el tamaño de la fuente y el color del texto
     fuente = cv2.FONT_HERSHEY_SIMPLEX
     escala = 1  # Escala de la fuente
     grosor = 2  # Grosor del texto
-    color = (0, 0, 0)  # Color del texto (en BGR)
+    color_texto = (color_b, color_g, color_r)  # Color del texto en formato BGR
 
-    # Obtener las dimensiones del texto
-    dimensiones_texto, _ = cv2.getTextSize(texto, fuente, escala, grosor)
-
-    # Calcular la posición del texto en la esquina superior izquierda
-    x = 10
-    y = dimensiones_texto[1] + 10  # Agregar un pequeño margen
-
-    # Insertar el texto en la imagen
-    imagen_con_texto = cv2.putText(imagen, texto, (x, y), fuente, escala, color, grosor)
+    # Insertar el texto en la imagen en las coordenadas especificadas
+    imagen_con_texto = cv2.putText(
+        imagen, texto, (x, y), fuente, escala, color_texto, grosor
+    )
 
     # Mostrar el resultado en una ventana
     cv2.imshow("Imagen con Texto", imagen_con_texto)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def dibujar_rectangulo_sobre_imagen():
+    # Pedir al usuario la ruta de la imagen
+    ruta_imagen = input("Ingrese la ruta de la imagen: ")
+
+    # Leer la imagen utilizando OpenCV
+    imagen = cv2.imread(ruta_imagen)
+
+    # Verificar si la imagen se ha leído correctamente
+    if imagen is None:
+        print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
+        return
+
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
+    # Pedir al usuario las coordenadas del rectángulo
+    try:
+        x1 = int(input("Ingrese la coordenada x1 del vértice superior izquierdo: "))
+        y1 = int(input("Ingrese la coordenada y1 del vértice superior izquierdo: "))
+        x2 = int(input("Ingrese la coordenada x2 del vértice inferior derecho: "))
+        y2 = int(input("Ingrese la coordenada y2 del vértice inferior derecho: "))
+    except ValueError:
+        print("Por favor, ingrese valores numéricos para las coordenadas.")
+        return
+
+    # Verificar si las coordenadas del rectángulo son válidas
+    if x1 >= x2 or y1 >= y2:
+        print("Las coordenadas del rectángulo no son válidas.")
+        return
+
+    # Pedir al usuario el color del rectángulo en formato RGB
+    try:
+        color_r = int(input("Ingrese el valor de R (0-255): "))
+        color_g = int(input("Ingrese el valor de G (0-255): "))
+        color_b = int(input("Ingrese el valor de B (0-255): "))
+    except ValueError:
+        print("Por favor, ingrese valores válidos para los componentes RGB.")
+        return
+
+    # Verificar si los valores RGB están en el rango permitido
+    if not (0 <= color_r <= 255 and 0 <= color_g <= 255 and 0 <= color_b <= 255):
+        print("Los valores RGB deben estar en el rango de 0 a 255.")
+        return
+
+    # Definir el color del rectángulo (en BGR)
+    color_rectangulo = (color_b, color_g, color_r)
+
+    # Dibujar el rectángulo sobre la imagen
+    imagen_con_rectangulo = cv2.rectangle(
+        imagen, (x1, y1), (x2, y2), color_rectangulo, thickness=2
+    )
+
+    # Mostrar el resultado en una ventana
+    cv2.imshow("Imagen con Rectángulo", imagen_con_rectangulo)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def dibujar_linea_sobre_imagen():
+    # Pedir al usuario la ruta de la imagen
+    ruta_imagen = input("Ingrese la ruta de la imagen: ")
+
+    # Leer la imagen utilizando OpenCV
+    imagen = cv2.imread(ruta_imagen)
+
+    # Verificar si la imagen se ha leído correctamente
+    if imagen is None:
+        print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
+        return
+
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
+    # Pedir al usuario las coordenadas de los puntos para dibujar la línea
+    try:
+        x1 = int(input("Ingrese la coordenada x del primer punto: "))
+        y1 = int(input("Ingrese la coordenada y del primer punto: "))
+        x2 = int(input("Ingrese la coordenada x del segundo punto: "))
+        y2 = int(input("Ingrese la coordenada y del segundo punto: "))
+    except ValueError:
+        print("Por favor, ingrese valores numéricos para las coordenadas.")
+        return
+
+    # Pedir al usuario el color de la línea en formato RGB
+    try:
+        color_r = int(input("Ingrese el valor de R (0-255): "))
+        color_g = int(input("Ingrese el valor de G (0-255): "))
+        color_b = int(input("Ingrese el valor de B (0-255): "))
+    except ValueError:
+        print("Por favor, ingrese valores válidos para los componentes RGB.")
+        return
+
+    # Verificar si los valores RGB están en el rango permitido
+    if not (0 <= color_r <= 255 and 0 <= color_g <= 255 and 0 <= color_b <= 255):
+        print("Los valores RGB deben estar en el rango de 0 a 255.")
+        return
+
+    # Definir el color de la línea (en BGR)
+    color_linea = (color_b, color_g, color_r)
+
+    # Dibujar la línea sobre la imagen
+    imagen_con_linea = cv2.line(imagen, (x1, y1), (x2, y2), color_linea, thickness=2)
+
+    # Mostrar el resultado en una ventana
+    cv2.imshow("Imagen con Línea", imagen_con_linea)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def dibujar_circulo_sobre_imagen():
+    # Pedir al usuario la ruta de la imagen
+    ruta_imagen = input("Ingrese la ruta de la imagen: ")
+
+    # Leer la imagen utilizando OpenCV
+    imagen = cv2.imread(ruta_imagen)
+
+    # Verificar si la imagen se ha leído correctamente
+    if imagen is None:
+        print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
+        return
+
+    altura, ancho, canales = imagen.shape
+
+    # Mostrar la información
+    print("Ancho de la imagen:", ancho)
+    print("Altura de la imagen:", altura)
+    print("Canales de colores de la imagen:", canales)
+
+    # Pedir al usuario las coordenadas del centro del círculo y su radio
+    try:
+        x = int(input("Ingrese la coordenada x del centro del círculo: "))
+        y = int(input("Ingrese la coordenada y del centro del círculo: "))
+        radio = int(input("Ingrese el radio del círculo: "))
+    except ValueError:
+        print("Por favor, ingrese valores numéricos para las coordenadas y el radio.")
+        return
+
+    # Pedir al usuario el color del círculo en formato RGB
+    try:
+        color_r = int(input("Ingrese el valor de R (0-255): "))
+        color_g = int(input("Ingrese el valor de G (0-255): "))
+        color_b = int(input("Ingrese el valor de B (0-255): "))
+    except ValueError:
+        print("Por favor, ingrese valores válidos para los componentes RGB.")
+        return
+
+    # Verificar si los valores RGB están en el rango permitido
+    if not (0 <= color_r <= 255 and 0 <= color_g <= 255 and 0 <= color_b <= 255):
+        print("Los valores RGB deben estar en el rango de 0 a 255.")
+        return
+
+    # Definir el color del círculo (en BGR)
+    color_circulo = (color_b, color_g, color_r)
+
+    # Dibujar el círculo sobre la imagen
+    imagen_con_circulo = cv2.circle(imagen, (x, y), radio, color_circulo, thickness=2)
+
+    # Mostrar el resultado en una ventana
+    cv2.imshow("Imagen con Círculo", imagen_con_circulo)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -390,23 +639,36 @@ def mostrar_menu():
     imprimir_mensaje_coloreado(r"██║  ██║██║██╔══╝  ██║   ██║██║   ██║", Colores.VERDE)
     imprimir_mensaje_coloreado(r"██████╔╝██║███████╗╚██████╔╝╚██████╔╝", Colores.VERDE)
     imprimir_mensaje_coloreado(r"╚═════╝ ╚═╝╚══════╝ ╚═════╝  ╚═════╝ ", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"███╗   ███╗███████╗███╗   ██╗██████╗  ██████╗ ███████╗ █████╗ ", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"████╗ ████║██╔════╝████╗  ██║██╔══██╗██╔═══██╗╚══███╔╝██╔══██╗", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"██╔████╔██║█████╗  ██╔██╗ ██║██║  ██║██║   ██║  ███╔╝ ███████║", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║  ██║██║   ██║ ███╔╝  ██╔══██║", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"██║ ╚═╝ ██║███████╗██║ ╚████║██████╔╝╚██████╔╝███████╗██║  ██║", Colores.VERDE)
-    imprimir_mensaje_coloreado(r"╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝", Colores.VERDE)
+    imprimir_mensaje_coloreado(
+        r"███╗   ███╗███████╗███╗   ██╗██████╗  ██████╗ ███████╗ █████╗ ", Colores.VERDE
+    )
+    imprimir_mensaje_coloreado(
+        r"████╗ ████║██╔════╝████╗  ██║██╔══██╗██╔═══██╗╚══███╔╝██╔══██╗", Colores.VERDE
+    )
+    imprimir_mensaje_coloreado(
+        r"██╔████╔██║█████╗  ██╔██╗ ██║██║  ██║██║   ██║  ███╔╝ ███████║", Colores.VERDE
+    )
+    imprimir_mensaje_coloreado(
+        r"██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║  ██║██║   ██║ ███╔╝  ██╔══██║", Colores.VERDE
+    )
+    imprimir_mensaje_coloreado(
+        r"██║ ╚═╝ ██║███████╗██║ ╚████║██████╔╝╚██████╔╝███████╗██║  ██║", Colores.VERDE
+    )
+    imprimir_mensaje_coloreado(
+        r"╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝", Colores.VERDE
+    )
     imprimir_mensaje_coloreado("Menú de opciones:", Colores.VERDE)
     imprimir_mensaje_coloreado("1. Copiar Imágenes", Colores.VERDE)
-    imprimir_mensaje_coloreado("2. Mostrar características de una imagen", Colores.VERDE)
     imprimir_mensaje_coloreado(
-        "3. Sobrescribir los pixeles de la imagen con color negro", Colores.VERDE
+        "2. Mostrar características de una imagen", Colores.VERDE
     )
+    imprimir_mensaje_coloreado("3. Sobrescribir los pixeles", Colores.VERDE)
     imprimir_mensaje_coloreado("4. Invertir una imagen", Colores.VERDE)
     imprimir_mensaje_coloreado("5. Ampliar o reducir una imagen", Colores.VERDE)
     imprimir_mensaje_coloreado("6. Recortar una imagen", Colores.VERDE)
     imprimir_mensaje_coloreado("7. Escribir texto en la imagen", Colores.VERDE)
-    imprimir_mensaje_coloreado("8. Reconocimiento facial", Colores.VERDE)
+    imprimir_mensaje_coloreado("8. Dibujar elementos en una imagen", Colores.VERDE)
+    imprimir_mensaje_coloreado("9. Reconocimiento facial", Colores.VERDE)
     imprimir_mensaje_coloreado("0. Salir", Colores.VERDE)
 
 
@@ -430,6 +692,21 @@ def main():
         elif opcion == "7":
             insertar_texto_en_imagen()
         elif opcion == "8":
+            # dibujar_figura_sobre_imagen()
+            # dibujar_rectangulo_sobre_imagen()
+            print("1. Línea")
+            print("2. Rectángulo")
+            print("3. Círculo")
+            figura = input("Seleccionar una figura: ")
+            if figura == "1":
+                dibujar_linea_sobre_imagen()
+            elif figura == "2":
+                dibujar_rectangulo_sobre_imagen()
+            elif figura == "3":
+                dibujar_circulo_sobre_imagen()
+            else:
+                print("Opción no válida.")
+        elif opcion == "9":
             reconocimiento_facial()
         elif opcion == "0":
             print("Saliendo del programa...")
