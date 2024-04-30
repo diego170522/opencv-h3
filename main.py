@@ -522,42 +522,8 @@ def dibujar_circulo_sobre_imagen():
     cv2.destroyAllWindows()
 
 
-def reconocimiento_facial():
-    # ========================-Downloading Assets-========================
-    def download_and_unzip(url, save_path):
-        print(f"Downloading and extracting assests....", end="")
-
-        # Downloading zip file using urllib package.
-        urlretrieve(url, save_path)
-
-        try:
-            # Extracting zip file using the zipfile package.
-            with ZipFile(save_path) as z:
-                # Extract ZIP file contents in the same directory.
-                z.extractall(os.path.split(save_path)[0])
-
-            print("Done")
-
-        except Exception as e:
-            print("\nInvalid file.", e)
-
-    URL = (
-        r"https://www.dropbox.com/s/efitgt363ada95a/opencv_bootcamp_assets_12.zip?dl=1"
-    )
-
-    asset_zip_path = os.path.join(os.getcwd(), f"opencv_bootcamp_assets_12.zip")
-
-    # Download if assest ZIP does not exists.
-    if not os.path.exists(asset_zip_path):
-        download_and_unzip(URL, asset_zip_path)
-    # ====================================================================
-
-    # s = 0
-    # if len(sys.argv) > 1:
-    #    s = sys.argv[1]
-
+def reconocimiento_facial_con_grabacion():
     source = cv2.VideoCapture(0)
-
     win_name = "Camera Preview"
     cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
 
@@ -570,22 +536,33 @@ def reconocimiento_facial():
     mean = [104, 117, 123]
     conf_threshold = 0.7
 
-    while cv2.waitKey(1) != 27:
+    # Initialize variables for video recording
+    record_video = False
+    video_writer = None
+    video_counter = 1
+
+    while cv2.waitKey(1) != 27:  # Presionar ESC para salir
         has_frame, frame = source.read()
         if not has_frame:
             break
         frame = cv2.flip(frame, 1)
-        # frame[10:220,10:200] = [255,255,255]
         frame_height = frame.shape[0]
         frame_width = frame.shape[1]
 
-        # Create a 4D blob from a frame.
+        # Crear un blob 4D desde un frame
         blob = cv2.dnn.blobFromImage(
             frame, 1.0, (in_width, in_height), mean, swapRB=False, crop=False
         )
-        # Run a model
+        # Ejecutar un modelo
         net.setInput(blob)
         detections = net.forward()
+
+        face_detected = (
+            False  # Bandera para indicar si se detecta un rostro en el frame actual
+        )
+        num_faces = (
+            0  # Contador para el número de rostros detectados en el frame actual
+        )
 
         for i in range(detections.shape[2]):
             confidence = detections[0, 0, i, 2]
@@ -595,36 +572,45 @@ def reconocimiento_facial():
                 x_right_top = int(detections[0, 0, i, 5] * frame_width)
                 y_right_top = int(detections[0, 0, i, 6] * frame_height)
 
+                # Dibujar un rectángulo alrededor del rostro detectado
                 cv2.rectangle(
                     frame,
                     (x_left_bottom, y_left_bottom),
                     (x_right_top, y_right_top),
                     (0, 255, 0),
                 )
-                label = "Confidence: %.4f" % confidence
-                label_size, base_line = cv2.getTextSize(
-                    label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1
-                )
+                face_detected = True
+                num_faces += 1
 
-                cv2.rectangle(
-                    frame,
-                    (x_left_bottom, y_left_bottom - label_size[1]),
-                    (x_left_bottom + label_size[0], y_left_bottom + base_line),
-                    (255, 255, 255),
-                    cv2.FILLED,
-                )
-                cv2.putText(
-                    frame,
-                    label,
-                    (x_left_bottom, y_left_bottom),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 0, 0),
-                )
+        # Verificar si se detecta al menos un rostro y comenzar/terminar la grabación de video según corresponda
+        if face_detected:
+            if (
+                num_faces > 1
+            ):  # Si se detectan más de un rostro, terminar la grabación actual (si existe)
+                if record_video:
+                    video_writer.release()
+                    record_video = False
+            else:  # Si se detecta exactamente un rostro
+                if not record_video:  # Comenzar una nueva grabación
+                    video_filename = f"reconocimientoFacial_{video_counter}.mp4"
+                    video_counter += 1
+                    video_writer = cv2.VideoWriter(
+                        video_filename,
+                        cv2.VideoWriter_fourcc(*"mp4v"),
+                        15,
+                        (frame_width, frame_height),
+                    )
+                    record_video = True
+        else:  # Si no se detecta ningún rostro, terminar la grabación actual (si existe)
+            if record_video:
+                video_writer.release()
+                record_video = False
 
-        t, _ = net.getPerfProfile()
-        label = "Inference time: %.2f ms" % (t * 1000.0 / cv2.getTickFrequency())
-        cv2.putText(frame, label, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+        # Escribir el frame en el video si la grabación está en progreso
+        if record_video:
+            video_writer.write(frame)
+
+        # Mostrar el frame con las detecciones
         cv2.imshow(win_name, frame)
 
     source.release()
@@ -707,7 +693,7 @@ def main():
             else:
                 print("Opción no válida.")
         elif opcion == "9":
-            reconocimiento_facial()
+            reconocimiento_facial_con_grabacion()
         elif opcion == "0":
             print("Saliendo del programa...")
             break
