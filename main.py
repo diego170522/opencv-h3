@@ -222,42 +222,24 @@ def ampliar_imagen():
         print("No se pudo leer la imagen. Verifique la ruta proporcionada.")
         return
 
-    altura, ancho, canales = imagen.shape
-
-    # Mostrar la información
-    print("Ancho de la imagen:", ancho)
-    print("Altura de la imagen:", altura)
-    print("Canales de colores de la imagen:", canales)
-
-    # Pedir al usuario el factor de modificación
+    # Pedir al usuario el factor de ampliación
     try:
-        factor_modificacion = float(
-            input("Ingrese el factor de modificación (-10 a 10): ")
+        factor_ampliacion = float(
+            input(
+                "Ingrese el factor de ampliación (por ejemplo, 1.5 para ampliar al 150%): "
+            )
         )
     except ValueError:
-        print("Por favor, ingrese un número válido para el factor de modificación.")
+        print("Por favor, ingrese un número válido para el factor de ampliación.")
         return
 
-    # Verificar si el factor de modificación está dentro del rango permitido
-    if factor_modificacion < -10 or factor_modificacion > 10:
-        print("El factor de modificación debe estar en el rango de -10 a 10.")
-        return
-
-    # Calcular el factor de ampliación o reducción según el valor proporcionado
-    if factor_modificacion >= 0:
-        factor_ampliacion = factor_modificacion + 1
-    else:
-        factor_ampliacion = 1 / abs(
-            factor_modificacion
-        )  # Invierte y toma el valor absoluto
-
-    # Modificar la imagen según el factor de ampliación o reducción
-    imagen_modificada = cv2.resize(
+    # Ampliar la imagen
+    imagen_ampliada = cv2.resize(
         imagen, None, fx=factor_ampliacion, fy=factor_ampliacion
     )
 
-    # Mostrar la imagen modificada en una ventana
-    cv2.imshow("Imagen Modificada", imagen_modificada)
+    # Mostrar la imagen en una ventana
+    cv2.imshow("Imagen Ampliada", imagen_ampliada)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
